@@ -39,7 +39,11 @@ python -m grpc_server.server
 
 ### MCP server
 
-(Coming soon)
+The MCP (Model-Context-Protocol) server exposes the `generate_uml` tool, allowing other processes to generate UML diagrams. To run the MCP server, use the following command:
+
+```bash
+python -m mcp_server.server
+```
 
 ## CLI usage
 
