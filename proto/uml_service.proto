@@ -1,0 +1,19 @@
+syntax = "proto3";
+package uml;
+
+service UMLService {
+  rpc GenerateUML (GenerateUMLRequest) returns (GenerateUMLResponse) {}
+}
+
+message GenerateUMLRequest {
+  string mode = 1;           // "domain_json" | "free_text"
+  string payload = 2;        // JSON or plain text
+  bool want_class = 3;       // default true
+  bool want_sequence = 4;    // default true
+}
+
+message GenerateUMLResponse {
+  string class_puml = 1;     // may be empty if want_class=false
+  string sequence_puml = 2;  // may be empty if want_sequence=false
+  string combined_puml = 3;  // class+sequence in one file (optional)
+}

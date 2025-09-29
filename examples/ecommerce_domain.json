@@ -1,0 +1,53 @@
+{
+  "classes": [
+    {"name": "User", "abstract": true, "attributes": [
+      {"vis":"+","name":"userId","type":"String"},
+      {"vis":"+","name":"password","type":"String"},
+      {"vis":"+","name":"loginStatus","type":"Boolean"},
+      {"vis":"+","name":"registerDate","type":"DateTime"}
+    ], "methods":[
+      { "sig":"+ verifyCredentials(id: String, pwd: String): Boolean" },
+      { "sig":"+ setLoginStatus(status: Boolean): void" }
+    ]},
+    {"name": "Customer", "extends": "User", "attributes":[
+      {"vis":"+","name":"name","type":"String"},
+      {"vis":"+","name":"address","type":"String"},
+      {"vis":"+","name":"email","type":"String"},
+      {"vis":"+","name":"creditCardDetails","type":"String"},
+      {"vis":"+","name":"accountBalance","type":"Money"}
+    ],
+    "methods":[]
+    }
+  ],
+  "relationships": [
+    {"from":"Catalog","to":"Product","type":"aggregation","multFrom":"1","multTo":"0..*","label":"contains"},
+    {"from":"ShoppingCart","to":"CartItem","type":"composition","multFrom":"1","multTo":"1..*"},
+    {"from":"Order","to":"OrderItem","type":"composition","multFrom":"1","multTo":"1..*"},
+    {"from":"Customer","to":"ShoppingCart","type":"association","multFrom":"1","multTo":"0..1"},
+    {"from":"Customer","to":"Order","type":"association","multFrom":"1","multTo":"0..*"},
+    {"from":"Order","to":"ShippingInfo","type":"association","multFrom":"1","multTo":"1"}
+  ],
+  "sequence": {
+    "scenario": "Checkout / Place Order",
+    "actors": ["Customer"],
+    "participants": ["ShoppingCart","CartItem","InventoryService","Order","PaymentService","ShippingInfo","NotificationService"],
+    "messages": [
+      {"from":"Customer","to":"ShoppingCart","label":"viewContents()"},
+      {"from":"ShoppingCart","to":"CartItem","label":"getLines()"},
+      {"from":"CartItem","to":"ShoppingCart","label":"List<CartItem>","dashed":true},
+      {"from":"Customer","to":"ShoppingCart","label":"proceedToCheckout()"},
+      {"from":"ShoppingCart","to":"InventoryService","label":"reserve(items)"},
+      {"from":"InventoryService","to":"ShoppingCart","label":"reservationOK: Boolean","dashed":true},
+      {"from":"ShoppingCart","to":"Order","label":"createOrder(cust, items)"},
+      {"from":"Order","to":"ShippingInfo","label":"attach(cust.shippingInfo)"},
+      {"from":"Order","to":"PaymentService","label":"charge(card, amount)"},
+      {"from":"PaymentService","to":"Order","label":"PaymentReceipt","dashed":true},
+      {"alt":"paymentFailed",
+       "else":["Order->InventoryService: release(items)", "Order->Customer: notifyFailure()"]},
+      {"from":"Order","to":"InventoryService","label":"confirm(items)"},
+      {"from":"Order","to":"NotificationService","label":"sendConfirmation(email)"},
+      {"from":"NotificationService","to":"Order","label":"ok","dashed":true},
+      {"from":"Order","to":"Customer","label":"orderConfirmation()","dashed":true}
+    ]
+  }
+}

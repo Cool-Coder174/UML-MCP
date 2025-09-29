@@ -1,0 +1,7 @@
+key.txt
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+out/
+test_out/
